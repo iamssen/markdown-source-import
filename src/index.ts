@@ -11,7 +11,7 @@ export = async function sourceImport(pattern: string | string[], {cwd = process.
   
   const files: string[][] = await Promise.all(patterns.map(p => glob(p, {cwd})));
   
-  for await (const file of files.flat()) {
+  for await (const file of ([] as string[]).concat(...files)) {
     const fileExists: boolean = await fs.pathExists(file);
     
     if (!fileExists) {
