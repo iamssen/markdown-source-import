@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { glob } from './glob-promise';
 
-const start: RegExp = /^<!-- import ((\.\.\/|[a-zA-Z0-9_/\-\\])*\.[a-zA-Z0-9]+) -->/;
+const start: RegExp = /^<!-- import ((\.\.\/|[a-zA-Z0-9._/\-\\])*\.[a-zA-Z0-9]+) -->/;
 const end: RegExp = /^<!-- importend -->/;
 
 export = async function sourceImport(pattern: string | string[], {cwd = process.cwd()}: {cwd?: string} = {}) {
