@@ -1,0 +1,78 @@
+{
+  "name": "markdown-source-import",
+  "version": "1.0.0",
+  "description": "Source code import to markdown files",
+  "keywords": [
+    "markdown"
+  ],
+  "author": "Seoyeon Lee",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamssen/markdown-source-import.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iamssen/markdown-source-import/issues"
+  },
+  "homepage": "https://github.com/iamssen/markdown-source-import",
+  "engines": {
+    "node": ">=10"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "npm run clean && tsc --project tsconfig.json",
+    "build:watch": "npm run clean && tsc --watch --project tsconfig.json",
+    "test": "jest --colors",
+    "coverage": "jest --colors --coverage",
+    "prepublishOnly": "npm run test && npm run lint && npm run build",
+    "lint": "tslint \"src/**/*.{ts,tsx}\""
+  },
+  "bin": {
+    "markdown-source-import": "./bin/markdown-source-import.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run test"
+    }
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      ".(ts|tsx)": "ts-jest"
+    },
+    "testMatch": [
+      "**/__test?(s)__/**/*.ts?(x)",
+      "**/?(*.)(spec|test).ts?(x)"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ]
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^8.0.0",
+    "@types/glob": "^7.1.1",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.2",
+    "@types/rimraf": "^2.0.2",
+    "jest": "^24.9.0",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.19.0",
+    "tslint-ssen-rules": "^1.3.0",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "fs-extra": "^8.1.0",
+    "glob": "^7.1.4"
+  }
+}

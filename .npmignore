@@ -1,0 +1,17 @@
+/*.iml
+/.idea/
+/.yarnclean
+/*.log
+
+/node_modules
+/package-lock.json
+/react-zeroconfig-*.tgz
+
+/.circleci
+/coverage
+/docs
+/src
+/test
+/toc.js
+/tsconfig.build.json
+/tslint.json
