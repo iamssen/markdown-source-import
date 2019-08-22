@@ -1,3 +1,8 @@
+# Markdown Source Import
+
+[![Build Status](https://travis-ci.org/iamssen/markdown-source-import.svg?branch=master)](https://travis-ci.org/iamssen/markdown-source-import)
+[![Coverage Status](https://coveralls.io/repos/github/iamssen/markdown-source-import/badge.svg?branch=master)](https://coveralls.io/github/iamssen/markdown-source-import?branch=master)
+
 # Install
 
 ```sh
