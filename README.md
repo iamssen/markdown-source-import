@@ -36,7 +36,7 @@ Execute `markdown-source-import [file]` command.
     }
   },
   "lint-staged": {
-    "./**/*.md": [
+    "*.md": [
       "markdown-source-import"
     ]
   }
