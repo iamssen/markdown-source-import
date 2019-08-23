@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/iamssen/markdown-source-import.svg?branch=master)](https://travis-ci.org/iamssen/markdown-source-import)
 [![Coverage Status](https://coveralls.io/repos/github/iamssen/markdown-source-import/badge.svg?branch=master)](https://coveralls.io/github/iamssen/markdown-source-import?branch=master)
 
-![Preview](https://raw.githubusercontent.com/iamssen/markdown-source-import/master/preview.webp)
+![Preview](http://ssen.name/markdown-source-import/preview.webp)
 
 # Install
 
