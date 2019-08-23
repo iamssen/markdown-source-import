@@ -1,17 +1,33 @@
 import chalk from 'chalk';
 import fs from 'fs-extra';
+import { IOptions } from 'glob';
 import path from 'path';
 import { glob } from './glob-promise';
+import minimist, { ParsedArgs } from 'minimist';
+import git from 'simple-git/promise';
 
 const start: RegExp = /^<!-- import ((\.\.\/|[a-zA-Z0-9._/\-\\])*\.[a-zA-Z0-9]+) -->/;
 const end: RegExp = /^<!-- importend -->/;
 
-export = async function sourceImport(pattern: string | string[], {cwd = process.cwd()}: {cwd?: string} = {}) {
-  const patterns: string[] = typeof pattern === 'string' ? [pattern] : pattern;
+const GIT_ADD: 'git-add' = 'git-add';
+
+export = async function sourceImport(nodeArgv: string[], {cwd = process.cwd()}: {cwd?: string} = {}) {
+  const gitEnabled: boolean = await fs.pathExists(path.join(cwd, '.git'));
+  const argv: ParsedArgs = minimist(nodeArgv, {boolean: [GIT_ADD]});
+  const patterns: string[] = argv._;
+  const gitAdd: boolean = gitEnabled && argv[GIT_ADD] === true;
   
-  const files: string[][] = await Promise.all(patterns.map(p => glob(p, {cwd})));
+  const globOptions: IOptions = {
+    cwd,
+    ignore: [
+      '**/node_modules/**',
+      './node_modules/**',
+    ],
+  };
   
-  for await (const file of ([] as string[]).concat(...files)) {
+  const files: string[] = ([] as string[]).concat(...(await Promise.all(patterns.map(p => glob(p, globOptions)))));
+  
+  for await (const file of files) {
     const fileExists: boolean = await fs.pathExists(file);
     
     if (!fileExists) {
@@ -24,6 +40,7 @@ export = async function sourceImport(pattern: string | string[], {cwd = process.
       const lines: string[] = source.split('\n');
       const replacedLines: string[] = [];
       let importFile: string | null = null;
+      let transformed: boolean = false;
       
       for (const line of lines) {
         const match: RegExpMatchArray | null = line.match(start);
@@ -54,6 +71,8 @@ export = async function sourceImport(pattern: string | string[], {cwd = process.
           replacedLines.push(line);
           
           importFile = null;
+          
+          transformed = true;
           continue;
         }
         
@@ -62,9 +81,22 @@ export = async function sourceImport(pattern: string | string[], {cwd = process.
         }
       }
       
-      const nextSource: string = replacedLines.join('\n');
+      if (importFile) {
+        transformed = false;
+      }
       
-      await fs.writeFile(file, nextSource, {encoding: 'utf8'});
+      if (transformed) {
+        const nextSource: string = replacedLines.join('\n');
+        
+        if (source !== nextSource) {
+          await fs.writeFile(file, nextSource, {encoding: 'utf8'});
+
+          if (gitAdd) {
+            await git(cwd).add(file);
+          }
+        }
+        
+      }
     } catch (error) {
       console.log(chalk.red.underline(`${file} is not processed!`));
       console.log(error.toString());

@@ -32,14 +32,13 @@ Execute `markdown-source-import [file]` command.
 {
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "markdown-source-import \"{,!(node_modules)/**/}*.md\" --git-add"
     }
-  },
-  "lint-staged": {
-    "*.md": [
-      "markdown-source-import",
-      "git add"
-    ]
   }
 }
 ```
+
+Add `markdown-source-import \"{,!(node_modules)/**/}*.md\" --git-add` command in `pre-commit` hook.
+
+> The `"{,!(node_modules)/**/}*.md"` glob pattern will process all `*.md` files except `node_modules` directory.
+> (eg. `"{,!(dir1|dir2|dir3)/**/}*.md"`)
