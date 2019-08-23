@@ -37,7 +37,8 @@ Execute `markdown-source-import [file]` command.
   },
   "lint-staged": {
     "*.md": [
-      "markdown-source-import"
+      "markdown-source-import",
+      "git add"
     ]
   }
 }
