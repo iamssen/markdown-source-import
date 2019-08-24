@@ -1,13 +1,11 @@
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import { IOptions } from 'glob';
-import path from 'path';
-import { glob } from './glob-promise';
 import minimist, { ParsedArgs } from 'minimist';
+import path from 'path';
 import git from 'simple-git/promise';
-
-const start: RegExp = /^<!-- import ((\.\.\/|[a-zA-Z0-9._/\-\\])*\.[a-zA-Z0-9]+) -->/;
-const end: RegExp = /^<!-- importend -->/;
+import { glob } from './glob-promise';
+import { endPattern, ImportMatch, match } from './regex';
 
 const GIT_ADD: 'git-add' = 'git-add';
 
@@ -25,80 +23,94 @@ export = async function sourceImport(nodeArgv: string[], {cwd = process.cwd()}: 
     ],
   };
   
-  const files: string[] = ([] as string[]).concat(...(await Promise.all(patterns.map(p => glob(p, globOptions)))));
+  const markdownFiles: string[] = ([] as string[])
+    .concat(...(await Promise.all(patterns.map(p => glob(p, globOptions)))))
+    .map(p => path.join(cwd, p));
   
-  for await (const file of files) {
-    const fileExists: boolean = await fs.pathExists(file);
+  for await (const markdownFile of markdownFiles) {
+    const markdownFileExists: boolean = await fs.pathExists(markdownFile);
     
-    if (!fileExists) {
+    if (!markdownFileExists) {
       continue;
     }
     
     try {
-      const source: string = await fs.readFile(file, {encoding: 'utf8'});
-      const dirname: string = path.dirname(file);
-      const lines: string[] = source.split('\n');
-      const replacedLines: string[] = [];
-      let importFile: string | null = null;
+      const markdownSource: string = await fs.readFile(markdownFile, {encoding: 'utf8'});
+      const markdownFileDirname: string = path.dirname(markdownFile);
+      const lines: string[] = markdownSource.split('\n');
+      const exportMarkdownLines: string[] = [];
+      let importMatched: ImportMatch | undefined = undefined;
       let transformed: boolean = false;
       
       for (const line of lines) {
-        const match: RegExpMatchArray | null = line.match(start);
+        const matched: ImportMatch | undefined = match(line);
         
-        if (match) {
-          replacedLines.push(line);
-          importFile = match[1];
+        if (matched) {
+          exportMarkdownLines.push(line);
+          importMatched = matched;
           continue;
         }
         
-        if (importFile && end.test(line)) {
-          const importFileFullPath: string = path.join(dirname, importFile);
-          const ext: string = path.extname(importFile);
-          const importFileExists: boolean = await fs.pathExists(importFileFullPath);
+        if (importMatched && endPattern.test(line)) {
+          const sourceFiles: string[] = (await glob(importMatched.pattern, {cwd: markdownFileDirname}))
+            .map(p => path.join(markdownFileDirname, p));
           
-          if (importFileExists) {
-            const importFileSource: string = await fs.readFile(importFileFullPath, {encoding: 'utf8'});
+          for await (const sourceFile of sourceFiles) {
+            const ext: string = path.extname(sourceFile);
+            const sourceFileExists: boolean = await fs.pathExists(sourceFile);
             
-            replacedLines.push(
-              '```' + ext.substring(1),
-              importFileSource,
-              '```',
-            );
-          } else {
-            replacedLines.push('<!-- undefined source file -->');
+            if (sourceFileExists) {
+              const source: string = await fs.readFile(sourceFile, {encoding: 'utf8'});
+              const importSource: string = Array.isArray(importMatched.slice)
+                ? source.split('\n').slice(...importMatched.slice).join('\n')
+                : source;
+              
+              if (importMatched.titleTag) {
+                exportMarkdownLines.push(`<${importMatched.titleTag}>${path.relative(markdownFileDirname, sourceFile)}</${importMatched.titleTag}>`);
+              }
+              
+              exportMarkdownLines.push(
+                '```' + ext.substring(1),
+                importSource,
+                '```',
+              );
+            } else {
+              exportMarkdownLines.push('<!-- undefined source file -->');
+            }
+            
+            transformed = true;
           }
           
-          replacedLines.push(line);
+          exportMarkdownLines.push(line);
+          importMatched = undefined;
           
-          importFile = null;
-          
-          transformed = true;
           continue;
         }
         
-        if (!importFile) {
-          replacedLines.push(line);
+        if (!importMatched) {
+          exportMarkdownLines.push(line);
         }
       }
       
-      if (importFile) {
+      if (importMatched) {
+        importMatched = undefined;
         transformed = false;
       }
       
       if (transformed) {
-        const nextSource: string = replacedLines.join('\n');
+        const nextSource: string = exportMarkdownLines.join('\n');
         
-        if (source !== nextSource) {
-          await fs.writeFile(file, nextSource, {encoding: 'utf8'});
-
+        if (markdownSource !== nextSource) {
+          await fs.writeFile(markdownFile, nextSource, {encoding: 'utf8'});
+          
           if (gitAdd) {
-            await git(cwd).add(file);
+            await git(cwd).add(markdownFile);
           }
         }
         
       }
     } catch (error) {
-      console.log(chalk.red.underline(`${file} is not processed!`));
+      console.log(chalk.red.underline(`${markdownFile} is not processed!`));
       console.log(error.toString());
     }
   }

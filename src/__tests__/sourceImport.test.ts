@@ -3,6 +3,6 @@ import sourceImport from '../';
 
 describe('sourceImport', () => {
   test('Basic', async () => {
-    await sourceImport([path.join(__dirname, '../../fixtures/test.md')]);
+    await sourceImport(['test.md'], {cwd: path.join(__dirname, '../../fixtures')});
   });
 });

@@ -14,6 +14,8 @@ npm install markdown-source-import --save-dev
 # Basic
 
 ```markdown
+# Title
+
 <!-- import __stories__/test.stories.tsx -->
 <!-- importend -->
 ```
@@ -27,6 +29,12 @@ npx markdown-source-import ./**/*.md
 ```
 
 Execute `markdown-source-import [file]` command.
+
+# Import Parameters
+
+- `<!-- import **/*.test.ts -->` import multiple source files with glob pattern
+- `<!-- import test.tsx --slice 40:60 -->` line slice option
+- `<!-- import **/*.test.ts --title-tag h4 -->` add filename above code block
 
 # Git Hook
 
