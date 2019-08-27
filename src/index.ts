@@ -4,7 +4,7 @@ import { IOptions } from 'glob';
 import minimist, { ParsedArgs } from 'minimist';
 import path from 'path';
 import git from 'simple-git/promise';
-import { escapeMarkdownSpecialCharacters } from './escapeMarkdownSpecialCharacters';
+import { createTitle } from './createTitle';
 import { glob } from './glob-promise';
 import { endPattern, ImportMatch, match } from './regex';
 
@@ -62,18 +62,24 @@ export = async function sourceImport(nodeArgv: string[], {cwd = process.cwd()}: 
             
             if (sourceFileExists) {
               const source: string = await fs.readFile(sourceFile, {encoding: 'utf8'});
+              if (importMatched.titleTag) {
+                exportMarkdownLines.push(
+                  '',
+                  createTitle(path.relative(markdownFileDirname, sourceFile), importMatched.titleTag),
+                  '',
+                );
+              }
+              
               const importSource: string = Array.isArray(importMatched.slice)
                 ? source.split('\n').slice(...importMatched.slice).join('\n')
                 : source;
               
-              if (importMatched.titleTag) {
-                exportMarkdownLines.push(`<${importMatched.titleTag}>${escapeMarkdownSpecialCharacters(path.relative(markdownFileDirname, sourceFile))}</${importMatched.titleTag}>`);
-              }
-              
               exportMarkdownLines.push(
+                '',
                 '```' + ext.substring(1),
                 importSource,
                 '```',
+                '',
               );
             } else {
               exportMarkdownLines.push('<!-- undefined source file -->');
