@@ -18,6 +18,9 @@ npm install markdown-source-import --save-dev
 
 <!-- import __stories__/test.stories.tsx -->
 <!-- importend -->
+
+<!-- index __documents__/*.md -->
+<!-- indexend -->
 ```
 
 Add comment to markdown documents.
@@ -35,6 +38,10 @@ Execute `markdown-source-import [file]` command.
 - `<!-- import **/*.test.ts -->` import multiple source files with glob pattern
 - `<!-- import test.tsx --slice 40:60 -->` line slice option
 - `<!-- import **/*.test.ts --title-tag h4 -->` add filename above code block
+
+# Index Parameters
+
+- `<!-- index **/*.md -->` create indexes with glob pattern
 
 # Git Hook
 

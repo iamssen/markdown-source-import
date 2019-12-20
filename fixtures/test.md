@@ -23,6 +23,12 @@
 
 <!-- importend -->
 
+<!-- index source/test1.md -->
+
+- [source/test1.md](source/test1.md)
+
+<!-- indexend  -->
+
 <!-- import source/*.js -->
 
 ```js
@@ -35,6 +41,13 @@ console.log('test2.js..()');
 ```
 
 <!-- importend -->
+
+<!-- index source/*.md -->
+
+- [source/test1.md](source/test1.md)
+- [source/test2.md](source/test2.md)
+
+<!-- indexend  -->
 
 <!-- import source/*.js --title-tag h3 -->
 
@@ -54,3 +67,12 @@ console.log('test2.js..()');
 ```
 
 <!-- importend -->
+
+<!-- index source/*.{md,js} -->
+
+- [source/test1.js](source/test1.js)
+- [source/test1.md](source/test1.md)
+- [source/test2.js](source/test2.js)
+- [source/test2.md](source/test2.md)
+
+<!-- indexend  -->
