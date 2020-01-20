@@ -117,6 +117,8 @@ export = async function sourceImport(nodeArgv: string[], {cwd = process.cwd()}: 
           for (const sourceFile of sourceFiles) {
             const relativePath: string = path.relative(markdownFileDirname, sourceFile);
             exportMarkdownLines.push(`- [${relativePath}](${relativePath})`);
+  
+            transformed = true;
           }
           
           exportMarkdownLines.push('');
